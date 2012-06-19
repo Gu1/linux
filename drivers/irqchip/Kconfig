@@ -1,1 +1,4 @@
-# empty
+config ARM_GIC
+	bool
+	help
+	  ARM Generic Interrupt Controller support.
