@@ -107,4 +107,7 @@ unsigned __vexpress_get_site(struct device *dev, struct device_node *node);
 void vexpress_sysreg_early_init(void __iomem *base);
 void vexpress_sysreg_of_early_init(void);
 
+void vexpress_power_off(void);
+void vexpress_restart(char str, const char *cmd);
+
 #endif
