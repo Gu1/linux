@@ -3,8 +3,6 @@ config PLAT_VEXPRESS
 	select ARCH_WANT_OPTIONAL_GPIOLIB
 	select ARM_AMBA
 	select CLKDEV_LOOKUP
-	select COMMON_CLK
-	select HAVE_CLK
 	select ARM_GIC
 	help
 	  This enables support for the ARMv8 software model (Versatile
