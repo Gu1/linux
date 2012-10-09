@@ -110,4 +110,12 @@ void vexpress_sysreg_of_early_init(void);
 void vexpress_power_off(void);
 void vexpress_restart(char str, const char *cmd);
 
+/* Clocks */
+
+struct clk *vexpress_osc_setup(struct device *dev);
+void vexpress_osc_of_setup(struct device_node *node);
+
+void vexpress_clk_init(void __iomem *sp810_base);
+void vexpress_clk_of_init(void);
+
 #endif
