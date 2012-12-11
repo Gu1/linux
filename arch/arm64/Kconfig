@@ -2,6 +2,7 @@ config ARM64
 	def_bool y
 	select ARCH_HAS_ATOMIC64_DEC_IF_POSITIVE
 	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION
+	select COMMON_CLK
 	select GENERIC_CLOCKEVENTS
 	select GENERIC_HARDIRQS_NO_DEPRECATED
 	select GENERIC_IOMAP
@@ -95,7 +96,11 @@ source "kernel/Kconfig.freezer"
 
 menu "System Type"
 
+source "arch/arm64/platforms/Kconfig"
+
 endmenu
+
+source "drivers/irqchip/Kconfig"
 
 menu "Bus support"
 
