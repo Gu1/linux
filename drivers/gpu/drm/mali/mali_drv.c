@@ -75,8 +75,6 @@ static struct drm_driver driver =
 	.load = mali_drm_load,
 	.unload = mali_drm_unload,
 	.context_dtor = NULL,
-	.reclaim_buffers = NULL,
-	.reclaim_buffers_idlelocked = NULL,
 	.preclose = mali_drm_preclose,
 	.lastclose = mali_drm_lastclose,
 	.suspend = mali_drm_suspend,
@@ -172,6 +170,6 @@ module_exit(mali_platform_drm_exit);
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_VERSION(DRIVER_VERSION);
 MODULE_AUTHOR(DRIVER_AUTHOR);
-MODULE_LICENSE(DRIVER_LICENCE);
+MODULE_LICENSE(DRIVER_LICENSE);
 MODULE_ALIAS(DRIVER_ALIAS);
 MODULE_INFO(vermagic, VERMAGIC_STRING);
