@@ -20,7 +20,11 @@
 #include <mach/regs-clock.h>
 #include <mach/cpufreq.h>
 
+#if defined(CONFIG_BOARD_ODROID_U2)
+#define CPUFREQ_LEVEL_END	(L15 + 1)
+#else
 #define CPUFREQ_LEVEL_END	(L13 + 1)
+#endif
 
 static int max_support_idx;
 static int min_support_idx = (CPUFREQ_LEVEL_END - 1);
@@ -38,6 +42,27 @@ struct cpufreq_clkdiv {
 
 static unsigned int exynos4x12_volt_table[CPUFREQ_LEVEL_END];
 
+#if defined(CONFIG_BOARD_ODROID_U2)
+static struct cpufreq_frequency_table exynos4x12_freq_table[] = {
+	{L0, 1704 * 1000},
+	{L1, 1600 * 1000},
+	{L2, 1500 * 1000},
+	{L3, 1400 * 1000},
+	{L4, 1300 * 1000},
+	{L5, 1200 * 1000},
+	{L6, 1100 * 1000},
+	{L7, 1000 * 1000},
+	{L8,  900 * 1000},
+	{L9,  800 * 1000},
+	{L10, 700 * 1000},
+	{L11, 600 * 1000},
+	{L12, 500 * 1000},
+	{L13, 400 * 1000},
+	{L14, 300 * 1000},
+	{L15, 200 * 1000},
+	{0, CPUFREQ_TABLE_END},
+};
+#else
 static struct cpufreq_frequency_table exynos4x12_freq_table[] = {
 	{L0, 1500 * 1000},
 	{L1, 1400 * 1000},
@@ -55,6 +80,7 @@ static struct cpufreq_frequency_table exynos4x12_freq_table[] = {
 	{L13, 200 * 1000},
 	{0, CPUFREQ_TABLE_END},
 };
+#endif
 
 static struct cpufreq_clkdiv exynos4x12_clkdiv_table[CPUFREQ_LEVEL_END];
 
@@ -113,6 +139,13 @@ static unsigned int clkdiv_cpu0_4412[CPUFREQ_LEVEL_END][8] = {
 	 * { DIVCORE, DIVCOREM0, DIVCOREM1, DIVPERIPH,
 	 *		DIVATB, DIVPCLK_DBG, DIVAPLL, DIVCORE2 }
 	 */
+#if defined(CONFIG_BOARD_ODROID_U2)
+	/* 1704 Mhz Support */
+	{ 0, 3, 7, 0, 6, 1, 2, 0},
+
+	/* 1600 Mhz Support */
+	{ 0, 3, 7, 0, 6, 1, 2, 0 },
+#endif
 	/* ARM L0: 1500 MHz */
 	{ 0, 3, 7, 0, 6, 1, 2, 0 },
 
@@ -207,6 +240,13 @@ static unsigned int clkdiv_cpu1_4412[CPUFREQ_LEVEL_END][3] = {
 	/* Clock divider value for following
 	 * { DIVCOPY, DIVHPM, DIVCORES }
 	 */
+#if defined(CONFIG_BOARD_ODROID_U2)
+	/* 1704Mhz */
+	{ 6, 0, 7 },
+
+	/* 1600MHz */
+	{ 6, 0, 7 },
+#endif
 	/* ARM L0: 1500 MHz */
 	{ 6, 0, 7 },
 
@@ -251,6 +291,13 @@ static unsigned int clkdiv_cpu1_4412[CPUFREQ_LEVEL_END][3] = {
 };
 
 static unsigned int exynos4x12_apll_pms_table[CPUFREQ_LEVEL_END] = {
+#if defined(CONFIG_BOARD_ODROID_U2)
+	/* 1704 Mhz */
+	((213 << 16) | (3 << 8) | (0x0)),
+
+	/* 1600MHz */
+	((200 << 16) | (3 << 8) | (0x0)),
+#endif
 	/* APLL FOUT L0: 1500 MHz */
 	((250 << 16) | (4 << 8) | (0x0)),
 
@@ -294,10 +341,17 @@ static unsigned int exynos4x12_apll_pms_table[CPUFREQ_LEVEL_END] = {
 	((100 << 16) | (3 << 8) | (0x2)),
 };
 
+#if defined(CONFIG_BOARD_ODROID_U2)
+static const unsigned int asv_voltage_4x12[CPUFREQ_LEVEL_END] = {
+	1350000, 1350000, 1300000, 1225000, 1175000, 1125000, 1075000, 1037500,
+	1012500, 1000000,  987500,  975000,  925000,  925000,  925000,  900000
+};
+#else
 static const unsigned int asv_voltage_4x12[CPUFREQ_LEVEL_END] = {
 	1350000, 1287500, 1250000, 1187500, 1137500, 1087500, 1037500,
 	1000000,  987500,  975000,  950000,  925000,  900000,  900000
 };
+#endif
 
 static void exynos4x12_set_clkdiv(unsigned int div_index)
 {
@@ -421,9 +475,6 @@ static void __init set_volt_table(void)
 	unsigned int i;
 
 	max_support_idx = L1;
-
-	/* Not supported */
-	exynos4x12_freq_table[L0].frequency = CPUFREQ_ENTRY_INVALID;
 
 	for (i = 0 ; i < CPUFREQ_LEVEL_END ; i++)
 		exynos4x12_volt_table[i] = asv_voltage_4x12[i];
