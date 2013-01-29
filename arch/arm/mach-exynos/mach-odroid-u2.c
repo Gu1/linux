@@ -900,20 +900,12 @@ static struct i2c_board_info odroid_u2_i2c_devs7[] __initdata = {
 };
 
 
-//#if defined(CONFIG_ODROID_X_LINUX_LEDS)
-#if 0
 static struct gpio_led odroid_u2_gpio_leds[] = {
 	{
-		.name		= "led1",	/* D5 on ODROID-X */
-		.default_trigger	= "oneshot",
-		.gpio		= EXYNOS4_GPC1(0),
-		.active_low	= 1,
-	},
-	{
-		.name		= "led2",	/* D6 on ODROID-X */
+		.name			= "led1",
 		.default_trigger	= "heartbeat",
-		.gpio		= EXYNOS4_GPC1(2),
-		.active_low	= 1,
+		.gpio			= EXYNOS4_GPC1(0),
+		.active_low		= 1,
 	},
 };
 
@@ -929,8 +921,6 @@ static struct platform_device odroid_u2_leds_gpio = {
 		.platform_data	= &odroid_u2_gpio_led_info,
 	},
 };
-#endif
-//
 
 #if defined(CONFIG_SND_SOC_HKDK_MAX98090)
 static struct platform_device hardkernel_audio_device = {
@@ -1033,11 +1023,9 @@ static struct platform_device *odroid_u2_devices[] __initdata = {
 #endif
 	&exynos4_device_ohci,
 	&exynos4_device_dwmci,
-#if defined(CONFIG_ODROID_X_LINUX_LEDS)
 
-	// Disable : ADD
 	&odroid_u2_leds_gpio,
-#endif
+
 	&samsung_asoc_dma,
 	&samsung_asoc_idma,
 #if defined(CONFIG_SND_SOC_HKDK_MAX98090)
@@ -1074,60 +1062,7 @@ static struct i2c_board_info hdmiphy_info = {
 	I2C_BOARD_INFO("hdmiphy-exynos4412", 0x38),
 };
 #endif
-#if defined(CONFIG_ODROID_X_ANDROID_LEDS)
-//------------------ ADD Hardkernel -------------------
-#include <linux/hrtimer.h>
-#include <linux/slab.h>
 
-#define KERNEL_RUNNING_LED_PORT		EXYNOS4_GPC1(0)
-#define KERNEL_ENTER_LED_PORT		EXYNOS4_GPC1(2)
-#define LED_BLINK_PERIOD		1   // 1 sec
-
-static struct hrtimer led_timer;
-
-static enum hrtimer_restart odroid_u2_led_timer(struct hrtimer *timer)
-{
-	static  unsigned char status = false;
-
-	status = !status;
-
-	gpio_direction_output	(KERNEL_RUNNING_LED_PORT, !status);
-
-	hrtimer_start(&led_timer, ktime_set(LED_BLINK_PERIOD, 0), HRTIMER_MODE_REL);
-
-	return HRTIMER_NORESTART;
-}
-
-static void odroid_u2_led_init(void)
-{
-	// GPIO request & init
-	gpio_request_one(KERNEL_RUNNING_LED_PORT,
-			 GPIOF_OUT_INIT_LOW,
-			 "kernel running led");
-	gpio_request_one(KERNEL_ENTER_LED_PORT,
-			 GPIOF_OUT_INIT_LOW,
-			 "kernel enter led");
-	// led blink timer init
-	hrtimer_init(&led_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-	led_timer.function = odroid_u2_led_timer;
-	hrtimer_start(&led_timer, ktime_set(LED_BLINK_PERIOD, 0), HRTIMER_MODE_REL);
-}
-
-static void odroid_u2_led_deinit(void)
-{
-	// led blink timer deinit
-	hrtimer_cancel(&led_timer);
-
-	// GPIO free
-	gpio_direction_output(KERNEL_RUNNING_LED_PORT, 1);
-	gpio_free(KERNEL_RUNNING_LED_PORT);
-
-	gpio_direction_output(KERNEL_ENTER_LED_PORT, 1);
-	gpio_free(KERNEL_ENTER_LED_PORT);
-}
-
-//------------------ END Hardkernel -------------------
-#endif
 static void __init odroid_u2_gpio_init(void)
 {
 	/* Peripheral power enable (P3V3) */
@@ -1138,11 +1073,6 @@ static void odroid_u2_power_off(void)
 {
 	pr_emerg("Bye...\n");
 
-#if defined(CONFIG_ODROID_X_ANDROID_LEDS)
-	// ADD Hardkernel
-	odroid_u2_led_deinit();
-	// END Hardkernel
-#endif
 	writel(0x5200, S5P_PS_HOLD_CONTROL);
 	while (1) {
 		pr_emerg("%s : should not reach here!\n", __func__);
@@ -1153,11 +1083,6 @@ static void odroid_u2_power_off(void)
 static void __init odroid_u2_machine_init(void)
 {
 	odroid_u2_gpio_init();
-#if defined(CONFIG_ODROID_X_ANDROID_LEDS)
-	// ADD Hardkernel
-	odroid_u2_led_init();
-	// END Hardkernel
-#endif
 	/* Register power off function */
 	pm_power_off = odroid_u2_power_off;
 
