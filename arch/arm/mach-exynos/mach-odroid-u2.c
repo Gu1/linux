@@ -862,16 +862,11 @@ static struct platform_device hdmi_fixed_voltage = {
 #if defined(CONFIG_USB_HSIC_USB3503)
 #include <linux/platform_data/usb3503.h>
 
-static int usb3503_reset_n(int reset)
-{
-	gpio_set_value(EXYNOS4_GPX3(5), reset);
-
-	return 0;
-}
-
 static struct usb3503_platform_data usb3503_pdata = {
 	.initial_mode	= USB3503_MODE_HUB,
-	.reset_n	= usb3503_reset_n,
+	.gpio_intn	= EXYNOS4_GPX3(0),
+	.gpio_connect	= EXYNOS4_GPX3(4),
+	.gpio_reset	= EXYNOS4_GPX3(5),
 };
 #endif
 
@@ -1137,20 +1132,6 @@ static void __init odroid_u2_gpio_init(void)
 {
 	/* Peripheral power enable (P3V3) */
 	gpio_request_one(EXYNOS4_GPA1(1), GPIOF_OUT_INIT_HIGH, "p3v3_en");
-
-#if defined(CONFIG_USB_HSIC_USB3503)
-	/* INT_N must be asserted if interrupt is not used */
-	gpio_request_one(EXYNOS4_GPX3(0), GPIOF_OUT_INIT_HIGH,
-				"usb3503_intn");
-
-	/* Hub will automatically transition to the Hub Communication Stage */
-	gpio_request_one(EXYNOS4_GPX3(4), GPIOF_OUT_INIT_HIGH,
-				"usb3503_connect");
-
-	/* USB3503 - Standby Mode */
-	gpio_request_one(EXYNOS4_GPX3(5), GPIOF_OUT_INIT_LOW,
-				"usb3503_reset_n");
-#endif
 }
 
 static void odroid_u2_power_off(void)
