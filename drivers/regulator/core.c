@@ -983,6 +983,20 @@ static int set_machine_constraints(struct regulator_dev *rdev,
 			goto out;
 		}
 	}
+/* BEING ODROID-U2 hack */
+	else {
+		if(ops->disable) {
+			ret = ops->disable(rdev);
+
+			if(ret < 0)
+				rdev_warn(rdev, "Disable Regulator Error!!\n");
+			else
+				rdev_warn(rdev, "Disable Regulator!!\n");
+
+			ret = 0;
+		}
+	}
+/* END ODROID-U2 hack */
 
 	if (rdev->constraints->ramp_delay && ops->set_ramp_delay) {
 		ret = ops->set_ramp_delay(rdev, rdev->constraints->ramp_delay);
@@ -2404,7 +2418,16 @@ static int _regulator_do_set_voltage(struct regulator_dev *rdev,
 				ret = regulator_map_voltage_iterate(rdev,
 								min_uV, max_uV);
 		}
-
+/* BEING ODROID-U2 hack */
+#include <linux/kernel.h>
+#include <linux/mfd/max77686.h>
+		if (rdev->desc->id == MAX77686_BUCK8) {
+			printk(KERN_ALERT "ODROIDU2: %s = HACK DONE\n", rdev->desc->name);
+			rdev->desc->ops->set_voltage_sel(rdev, 0);
+			old_selector = 0;
+			mdelay(120);
+		}
+/* END ODROID-U2 hack */
 		if (ret >= 0) {
 			best_val = rdev->desc->ops->list_voltage(rdev, ret);
 			if (min_uV <= best_val && max_uV >= best_val) {
