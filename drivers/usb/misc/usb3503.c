@@ -203,8 +203,15 @@ int usb3503_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
 	}
 
 	if (gpio_is_valid(hub->gpio_intn)) {
+#ifdef CONFIG_BOARD_ODROID_U2
+		/* Selecting the secondary REFCLK frequencies requires
+		 * that the INT_N pin is be driven low */
+		err = gpio_request_one(hub->gpio_intn,
+				GPIOF_OUT_INIT_LOW, "usb3503 intn");
+#else
 		err = gpio_request_one(hub->gpio_intn,
 				GPIOF_OUT_INIT_HIGH, "usb3503 intn");
+#endif
 		if (err) {
 			dev_err(&i2c->dev,
 					"unable to request GPIO %d as connect pin (%d)\n",
