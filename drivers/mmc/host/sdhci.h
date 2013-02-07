@@ -279,7 +279,7 @@ struct sdhci_ops {
 	void	(*platform_suspend)(struct sdhci_host *host);
 	void	(*platform_resume)(struct sdhci_host *host);
 	void	(*platform_init)(struct sdhci_host *host);
-};
+} __no_const;
 
 #ifdef CONFIG_MMC_SDHCI_IO_ACCESSORS
 
