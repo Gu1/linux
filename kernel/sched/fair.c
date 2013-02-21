@@ -6425,7 +6425,7 @@ static void hmp_force_up_migration(int this_cpu) { }
  * run_rebalance_domains is triggered when needed from the scheduler tick.
  * Also triggered for nohz idle balancing (with nohz_balancing_kick set).
  */
-static void run_rebalance_domains(struct softirq_action *h)
+static void run_rebalance_domains(void)
 {
 	int this_cpu = smp_processor_id();
 	struct rq *this_rq = cpu_rq(this_cpu);
