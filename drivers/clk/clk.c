@@ -465,6 +465,7 @@ static void clk_disable_unused_subtree(struct clk *clk)
 {
 	struct clk *child;
 	unsigned long flags;
+	int ret;
 
 	if (!clk)
 		goto out;
@@ -485,7 +486,11 @@ static void clk_disable_unused_subtree(struct clk *clk)
 	 * sequence.  call .disable_unused if available, otherwise fall
 	 * back to .disable
 	 */
-	if (__clk_is_enabled(clk)) {
+
+	clk_enable_unlock(flags);
+	ret = __clk_is_enabled(clk);
+	flags = clk_enable_lock();
+	if (ret) {
 		if (clk->ops->disable_unused)
 			clk->ops->disable_unused(clk->hw);
 		else if (clk->ops->disable)
